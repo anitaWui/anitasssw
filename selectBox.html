@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CheckboxSelect</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #app {
+            display: grid;
+            grid-template-columns: auto auto auto auto auto auto;
+            justify-content: center;
+            align-content: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+        <input type="checkbox" /><input type="checkbox" />
+    </div>
+
+    <script>
+        document.addEventListener('mousedown', (e) => {
+            // 获取鼠标按下时的坐标
+            const startX = e.clientX
+            const startY = e.clientY
+
+            // 创建框选区域
+            const selectDiv = document.createElement('div')
+            selectDiv.style.cssText = `
+        position: absolute;
+        top: ${startY}px;
+        left: ${startX}px;
+        border: 1px dashed rgba(0, 153, 255, 0.6);
+      `
+
+            // 添加到body
+            document.body.appendChild(selectDiv)
+
+            // 获取所有的checkbox
+            const checkboxs = document.querySelectorAll('input[type="checkbox"]')
+
+            // 点击判断
+            let isClick = true
+
+            // 鼠标移动事件
+            const handleMouseMove = (e) => {
+                // 鼠标移动 则不是点击
+                isClick = false
+
+                // 获取鼠标移动后的位置
+                const endX = e.clientX
+                const endY = e.clientY
+
+                // 设置框选区域的位置
+                selectDiv.style.top = Math.min(startY, endY) + 'px'
+                selectDiv.style.left = Math.min(startX, endX) + 'px'
+
+                // 设置框选区域的宽高
+                selectDiv.style.width = Math.abs(endX - startX) + 'px'
+                selectDiv.style.height = Math.abs(endY - startY) + 'px'
+
+                // 获取框选区域的宽高
+                const width = selectDiv.offsetWidth
+                const height = selectDiv.offsetHeight
+
+                // 遍历所有的checkbox
+                checkboxs.forEach((checkbox) => {
+                    // 获取checkbox的坐标
+                    const {
+                        left,
+                        top
+                    } = checkbox.getBoundingClientRect()
+
+                    // 判断checkbox是否在框选区域内
+                    if (
+                        left >= Math.min(startX, endX) &&
+                        left <= Math.min(startX, endX) + width &&
+                        top >= Math.min(startY, endY) &&
+                        top <= Math.min(startY, endY) + height
+                    ) {
+                        // 如果在框选区域内，则选中
+                        checkbox.checked = true
+                    } else {
+                        // 如果不在框选区域内，则不选中
+                        checkbox.checked = false
+                    }
+                })
+            }
+            document.addEventListener('mousemove', handleMouseMove)
+
+            // 鼠标抬起事件
+            document.addEventListener('mouseup', () => {
+                // 删除框选区域
+                if (selectDiv.parentNode) {
+                    selectDiv.parentNode.removeChild(selectDiv)
+                }
+
+                // 移除鼠标移动事件
+                document.removeEventListener('mousemove', handleMouseMove)
+            })
+
+            if (isClick === true) {
+                // 如果是点击 判断是否点击的是checkbox
+                if (e.target.tagName === 'INPUT') {
+                    // 如果是checkbox 则更改checkbox的状态
+                    e.target.checked = !e.target.checked
+                } else {
+                    // 如果不是checkbox 则重置所有的checkbox
+                    checkboxs.forEach((checkbox) => {
+                        checkbox.checked = false
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
